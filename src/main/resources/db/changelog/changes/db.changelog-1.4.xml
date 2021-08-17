@@ -1,0 +1,150 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog dbchangelog-4.0.xsd">
+
+  <!-- CREATE externalid_provider TABLE-->
+  <changeSet author="karnak" id="1.4-1">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="externalid_provider"/>
+      </not>
+    </preConditions>
+    <createTable tableName="externalid_provider">
+      <column name="id" type="BIGINT" defaultValueSequenceNext="hibernate_sequence">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="externalid_provider_pkey"/>
+      </column>
+      <column name="bydefault" type="BOOLEAN"/>
+      <column name="externalid_provider_type" type="VARCHAR(255)"/>
+      <column name="jar_name" type="VARCHAR(255)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="karnak" id="1.4-2">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="destination" columnName="externalid_provider_id"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="destination">
+      <column name="externalid_provider_id" type="INTEGER" defaultValue='null'>
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+
+  <!-- INSERT VALUES IN externalid_provider TABLE-->
+  <changeSet author="karnak" id="1.4-3">
+    <insert
+      schemaName="public"
+      tableName="externalid_provider">
+      <column name="bydefault" value="true"/>
+      <column name="externalid_provider_type" value="ID_GENERATED_BY_MAINZELLISTE"/>
+    </insert>
+  </changeSet>
+
+  <changeSet author="karnak" id="1.4-4">
+    <insert
+      schemaName="public"
+      tableName="externalid_provider">
+      <column name="bydefault" value="true"/>
+      <column name="externalid_provider_type" value="EXTID_IN_MAINTELLISTE"/>
+    </insert>
+  </changeSet>
+
+  <changeSet author="karnak" id="1.4-5">
+    <insert
+      schemaName="public"
+      tableName="externalid_provider">
+      <column name="bydefault" value="true"/>
+      <column name="externalid_provider_type" value="EXTID_IN_CACHE"/>
+    </insert>
+  </changeSet>
+
+  <changeSet author="karnak" id="1.4-6">
+    <insert
+      schemaName="public"
+      tableName="externalid_provider">
+      <column name="bydefault" value="true"/>
+      <column name="externalid_provider_type" value="EXTID_IN_TAG"/>
+    </insert>
+  </changeSet>
+
+
+  <!-- UPDATE externalid_provider_id VALUES IN destination TABLE -->
+  <changeSet author="karnak" id="1.4-7">
+    <update
+      schemaName="public"
+      tableName="destination">
+      <column name="externalid_provider_id"
+        valueComputed="(select id from externalid_provider where externalid_provider_type='ID_GENERATED_BY_MAINZELLISTE')"/>
+      <where>pseudonym_type='0'</where>
+    </update>
+  </changeSet>
+
+
+  <changeSet author="karnak" id="1.4-8">
+    <update
+      schemaName="public"
+      tableName="destination">
+      <column name="externalid_provider_id"
+        valueComputed="(select id from externalid_provider where externalid_provider_type='EXTID_IN_MAINTELLISTE')"/>
+      <where>pseudonym_type='1'</where>
+    </update>
+  </changeSet>
+
+
+  <changeSet author="karnak" id="1.4-9">
+    <update
+      schemaName="public"
+      tableName="destination">
+      <column name="externalid_provider_id"
+        valueComputed="(select id from externalid_provider where externalid_provider_type='EXTID_IN_CACHE')"/>
+      <where>pseudonym_type='2'</where>
+    </update>
+  </changeSet>
+
+
+  <changeSet author="karnak" id="1.4-10">
+    <update
+      schemaName="public"
+      tableName="destination">
+      <column name="externalid_provider_id"
+        valueComputed="(select id from externalid_provider where externalid_provider_type='EXTID_IN_TAG')"/>
+      <where>pseudonym_type='3'</where>
+    </update>
+  </changeSet>
+
+  <changeSet author="karnak" id="1.4-11">
+    <update schemaName="public" tableName="destination">
+      <column name="externalid_provider_id" value="NULL"/>
+      <where>desidentification='false'</where>
+    </update>
+  </changeSet>
+
+  <!-- CREATE FOREIGN KEY FOR externalid_provider_id -->
+  <changeSet author="karnak" id="1.4-12">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <foreignKeyConstraintExists foreignKeyName="fk5idsjfos5f4gv8efgEeSss512"
+          schemaName="public"/>
+      </not>
+    </preConditions>
+    <addForeignKeyConstraint baseColumnNames="externalid_provider_id" baseTableName="destination"
+      constraintName="fk5idsjfos5f4gv8efgEeSss512" deferrable="false" initiallyDeferred="false"
+      onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id"
+      referencedTableName="externalid_provider" validate="true"/>
+  </changeSet>
+
+  <changeSet author="karnak" id="1.4-13">
+    <dropColumn
+      schemaName="public"
+      tableName="destination">
+      <column name="pseudonym_type"/>
+    </dropColumn>
+  </changeSet>
+
+</databaseChangeLog>

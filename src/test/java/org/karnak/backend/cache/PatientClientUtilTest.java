@@ -54,11 +54,14 @@ class PatientClientUtilTest {
 
   private static Stream<Arguments> providerGenerateKeyPseudonymPatient() {
     return Stream.of(
-        Arguments.of(new CachedPatient("pseudo", "123", "456", "789", "101112", null), "123101112"),
-        Arguments.of(new CachedPatient("pseudo", "123", "456", "789", "", null), "123", null),
         Arguments.of(
-            new CachedPatient("pseudo", "EREN", "Patient", "Name", "PDA", null), "ERENPDA"),
-        Arguments.of(new CachedPatient("pseudo", "EREN", "Patient", "Name", "", null), "EREN"),
+            new ExternalIDCSVPatient("pseudo", "123", "456", "789", "101112", null), "123101112"),
+        Arguments.of(
+            new ExternalIDCSVPatient("pseudo", "123", "456", "789", "", null), "123", null),
+        Arguments.of(
+            new ExternalIDCSVPatient("pseudo", "EREN", "Patient", "Name", "PDA", null), "ERENPDA"),
+        Arguments.of(
+            new ExternalIDCSVPatient("pseudo", "EREN", "Patient", "Name", "", null), "EREN"),
         Arguments.of(
             new MainzellistePatient(
                 "pseudo", "123", "", "456", LocalDate.of(1993, 02, 16), "M", ""),
@@ -80,10 +83,12 @@ class PatientClientUtilTest {
   private static Stream<Arguments> providerGenerateKeyPseudonymPatientAndProjectID() {
     return Stream.of(
         Arguments.of(
-            new CachedPatient("pseudo", "123", "456", "789", "101112", 900L), "123101112900"),
-        Arguments.of(new CachedPatient("pseudo", "123", "456", "789", "", 128L), "123128"),
+            new ExternalIDCSVPatient("pseudo", "123", "456", "789", "101112", 900L),
+            "123101112900"),
+        Arguments.of(new ExternalIDCSVPatient("pseudo", "123", "456", "789", "", 128L), "123128"),
         Arguments.of(
-            new CachedPatient("pseudo", "EREN", "Patient", "Name", "PDA", 524L), "ERENPDA524"));
+            new ExternalIDCSVPatient("pseudo", "EREN", "Patient", "Name", "PDA", 524L),
+            "ERENPDA524"));
   }
 
   private static Stream<Arguments> providerGenerateKeyPatientMetadata() {
@@ -108,9 +113,11 @@ class PatientClientUtilTest {
 
   @ParameterizedTest
   @MethodSource("providerGenerateKeyPseudonymPatientAndProjectID")
-  void providerGenerateKeyPseudonymPatientAndProjectID(CachedPatient cachedPatient, String output) {
+  void providerGenerateKeyPseudonymPatientAndProjectID(
+      ExternalIDCSVPatient externalIDCSVPatient, String output) {
     assertEquals(
-        PatientClientUtil.generateKey(cachedPatient, cachedPatient.getProjectID()), output);
+        PatientClientUtil.generateKey(externalIDCSVPatient, externalIDCSVPatient.getProjectID()),
+        output);
   }
 
   @ParameterizedTest

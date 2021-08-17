@@ -28,6 +28,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -41,7 +42,6 @@ import org.karnak.backend.data.validator.DestinationGroupSequenceProvider;
 import org.karnak.backend.data.validator.DestinationGroupSequenceProvider.DestinationDicomGroup;
 import org.karnak.backend.data.validator.DestinationGroupSequenceProvider.DestinationStowGroup;
 import org.karnak.backend.enums.DestinationType;
-import org.karnak.backend.enums.PseudonymType;
 
 @GroupSequenceProvider(value = DestinationGroupSequenceProvider.class)
 @Entity(name = "Destination")
@@ -60,8 +60,6 @@ public class DestinationEntity implements Serializable {
   private boolean desidentification;
   private String issuerByDefault;
 
-  private PseudonymType pseudonymType;
-
   private String tag;
   private String delimiter;
   private Integer position;
@@ -71,6 +69,7 @@ public class DestinationEntity implements Serializable {
   private List<KheopsAlbumsEntity> kheopsAlbumEntities;
   private ProjectEntity projectEntity;
   private ForwardNodeEntity forwardNodeEntity;
+  private ExternalIDProviderEntity externalIDProviderEntity;
 
   // Activate notification
   private boolean activateNotification;
@@ -138,7 +137,6 @@ public class DestinationEntity implements Serializable {
     this.description = "";
     this.desidentification = false;
     this.issuerByDefault = "";
-    this.pseudonymType = PseudonymType.MAINZELLISTE_PID;
     this.tag = null;
     this.delimiter = null;
     this.position = null;
@@ -402,14 +400,6 @@ public class DestinationEntity implements Serializable {
     return sopList;
   }
 
-  public PseudonymType getPseudonymType() {
-    return pseudonymType;
-  }
-
-  public void setPseudonymType(PseudonymType pseudonymType) {
-    this.pseudonymType = pseudonymType;
-  }
-
   public String getTag() {
     return tag;
   }
@@ -452,6 +442,16 @@ public class DestinationEntity implements Serializable {
   @JsonSetter("kheopsAlbums")
   public void setKheopsAlbumEntities(List<KheopsAlbumsEntity> kheopsAlbumEntities) {
     this.kheopsAlbumEntities = kheopsAlbumEntities;
+  }
+
+  @OneToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "externalid_provider_id", referencedColumnName = "id")
+  public ExternalIDProviderEntity getExternalIDProviderEntity() {
+    return externalIDProviderEntity;
+  }
+
+  public void setExternalIDProviderEntity(ExternalIDProviderEntity externalIDProviderEntity) {
+    this.externalIDProviderEntity = externalIDProviderEntity;
   }
 
   @JsonGetter("project")
@@ -620,7 +620,6 @@ public class DestinationEntity implements Serializable {
         && Objects.equals(id, that.id)
         && Objects.equals(description, that.description)
         && destinationType == that.destinationType
-        && pseudonymType == that.pseudonymType
         && Objects.equals(tag, that.tag)
         && Objects.equals(delimiter, that.delimiter)
         && Objects.equals(position, that.position)
@@ -650,7 +649,6 @@ public class DestinationEntity implements Serializable {
         destinationType,
         desidentification,
         issuerByDefault,
-        pseudonymType,
         tag,
         delimiter,
         position,

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.karnak.backend.cache.CachedPatient;
+import org.karnak.backend.cache.ExternalIDCSVPatient;
 import org.karnak.backend.cache.PatientClient;
 import org.karnak.backend.cache.PseudonymPatient;
 import org.karnak.backend.config.AppConfig;
@@ -35,33 +35,33 @@ import org.karnak.backend.data.entity.ProjectEntity;
 import org.karnak.backend.util.PatientClientUtil;
 import org.vaadin.klaudeta.PaginatedGrid;
 
-public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
+public class ExternalIDGrid extends PaginatedGrid<ExternalIDCSVPatient> {
 
   private static final String ERROR_MESSAGE_PATIENT = "Length must be between 1 and 50.";
   private static final String LABEL_SAVE = "Save";
   private static final String LABEL_CANCEL = "Cancel";
   private static final String LABEL_FILTER = "Filter";
-  private final Binder<CachedPatient> binder;
-  private final List<CachedPatient> patientList;
+  private final Binder<ExternalIDCSVPatient> binder;
+  private final List<ExternalIDCSVPatient> patientList;
   private transient PatientClient externalIDCache;
   private transient ProjectEntity projectEntity;
   private Button deletePatientButton;
   private Button saveEditPatientButton;
   private Button cancelEditPatientButton;
-  private Editor<CachedPatient> editor;
+  private Editor<ExternalIDCSVPatient> editor;
   private Collection<Button> editButtons;
   private TextField externalIdField;
   private TextField patientIdField;
   private TextField patientFirstNameField;
   private TextField patientLastNameField;
   private TextField issuerOfPatientIdField;
-  private Grid.Column<CachedPatient> deleteColumn;
+  private Grid.Column<ExternalIDCSVPatient> deleteColumn;
 
-  private Grid.Column<CachedPatient> extidColumn;
-  private Grid.Column<CachedPatient> patientIdColumn;
-  private Grid.Column<CachedPatient> patientFirstNameColumn;
-  private Grid.Column<CachedPatient> patientLastNameColumn;
-  private Grid.Column<CachedPatient> issuerOfPatientIDColumn;
+  private Grid.Column<ExternalIDCSVPatient> extidColumn;
+  private Grid.Column<ExternalIDCSVPatient> patientIdColumn;
+  private Grid.Column<ExternalIDCSVPatient> patientFirstNameColumn;
+  private Grid.Column<ExternalIDCSVPatient> patientLastNameColumn;
+  private Grid.Column<ExternalIDCSVPatient> issuerOfPatientIDColumn;
 
   private TextField patientIdFilter;
   private TextField extidFilter;
@@ -69,11 +69,11 @@ public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
   private TextField patientLastNameFilter;
   private TextField issuerOfPatientIDFilter;
 
-  private List<CachedPatient> patientsListInCache = new ArrayList<>();
+  private List<ExternalIDCSVPatient> patientsListInCache = new ArrayList<>();
   private transient Collection<PseudonymPatient> duplicatePatientsList = new ArrayList<>();
 
   public ExternalIDGrid() {
-    binder = new Binder<>(CachedPatient.class);
+    binder = new Binder<>(ExternalIDCSVPatient.class);
     patientList = new ArrayList<>();
     this.externalIDCache = AppConfig.getInstance().getExternalIDCache();
 
@@ -103,8 +103,8 @@ public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
 
     saveEditPatientButton.addClickListener(
         e -> {
-          final CachedPatient patientEdit =
-              new CachedPatient(
+          final ExternalIDCSVPatient patientEdit =
+              new ExternalIDCSVPatient(
                   externalIdField.getValue(),
                   patientIdField.getValue(),
                   patientFirstNameField.getValue(),
@@ -124,22 +124,24 @@ public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
 
   private void setElements() {
     extidColumn =
-        addColumn(CachedPatient::getPseudonym).setHeader("External Pseudonym").setSortable(true);
+        addColumn(ExternalIDCSVPatient::getPseudonym)
+            .setHeader("External Pseudonym")
+            .setSortable(true);
     patientIdColumn =
-        addColumn(CachedPatient::getPatientId).setHeader("Patient ID").setSortable(true);
+        addColumn(ExternalIDCSVPatient::getPatientId).setHeader("Patient ID").setSortable(true);
     patientFirstNameColumn =
-        addColumn(CachedPatient::getPatientFirstName)
+        addColumn(ExternalIDCSVPatient::getPatientFirstName)
             .setHeader("Patient first name")
             .setSortable(true);
     patientLastNameColumn =
-        addColumn(CachedPatient::getPatientLastName)
+        addColumn(ExternalIDCSVPatient::getPatientLastName)
             .setHeader("Patient last name")
             .setSortable(true);
     issuerOfPatientIDColumn =
-        addColumn(CachedPatient::getIssuerOfPatientId)
+        addColumn(ExternalIDCSVPatient::getIssuerOfPatientId)
             .setHeader("Issuer of patient ID")
             .setSortable(true);
-    Grid.Column<CachedPatient> editorColumn =
+    Grid.Column<ExternalIDCSVPatient> editorColumn =
         addComponentColumn(
             patient -> {
               Button edit = new Button("Edit");
@@ -280,7 +282,7 @@ public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
       patientsListInCache = new ArrayList<>();
       for (Iterator<PseudonymPatient> iterator = pseudonymPatients.iterator();
           iterator.hasNext(); ) {
-        final CachedPatient patient = (CachedPatient) iterator.next();
+        final ExternalIDCSVPatient patient = (ExternalIDCSVPatient) iterator.next();
         if (projectEntity != null
             && patient.getProjectID() != null
             && patient.getProjectID().equals(projectEntity.getId())) {
@@ -292,14 +294,14 @@ public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
     refreshPaginator();
   }
 
-  public void addPatient(CachedPatient newPatient) {
+  public void addPatient(ExternalIDCSVPatient newPatient) {
     if (!patientExist(newPatient)) {
       externalIDCache.put(
           PatientClientUtil.generateKey(newPatient, projectEntity.getId()), newPatient);
     }
   }
 
-  public void addPatientList(List<CachedPatient> patientList) {
+  public void addPatientList(List<ExternalIDCSVPatient> patientList) {
     patientList.forEach(this::addPatient);
     readAllCacheValue();
   }
@@ -315,7 +317,8 @@ public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
   }
 
   public void checkAndUpdateAllFilters() {
-    List<CachedPatient> filterList = patientsListInCache.stream().collect(Collectors.toList());
+    List<ExternalIDCSVPatient> filterList =
+        patientsListInCache.stream().collect(Collectors.toList());
 
     if (!extidFilter.getValue().equals("")) {
       filterList =
@@ -392,7 +395,7 @@ public class ExternalIDGrid extends PaginatedGrid<CachedPatient> {
     this.externalIDCache = externalIDCache;
   }
 
-  public List<CachedPatient> getPatientsListInCache() {
+  public List<ExternalIDCSVPatient> getPatientsListInCache() {
     return patientsListInCache;
   }
 }

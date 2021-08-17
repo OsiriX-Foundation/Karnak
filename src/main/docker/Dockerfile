@@ -17,6 +17,7 @@ COPY --from=builder /app/spring-boot-loader/ ./
 COPY --from=builder /app/snapshot-dependencies/ ./
 COPY --from=builder /app/application/ ./
 COPY tools/docker-entrypoint.sh .
+RUN mkdir externalid-providers
 
 EXPOSE 8080
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

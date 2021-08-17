@@ -9,10 +9,7 @@
  */
 package org.karnak.frontend.forwardnode.edit.destination.component;
 
-import static org.karnak.backend.enums.PseudonymType.CACHE_EXTID;
-import static org.karnak.backend.enums.PseudonymType.EXTID_IN_TAG;
-import static org.karnak.backend.enums.PseudonymType.MAINZELLISTE_EXTID;
-import static org.karnak.backend.enums.PseudonymType.MAINZELLISTE_PID;
+import static org.karnak.backend.enums.ExternalIDProviderType.EXTID_IN_TAG;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
@@ -22,8 +19,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import org.karnak.ExternalIDProvider;
+import org.karnak.backend.config.ExternalIDProviderConfig;
 import org.karnak.backend.data.entity.DestinationEntity;
 import org.karnak.backend.data.entity.ProjectEntity;
+import org.karnak.backend.enums.ExternalIDProviderType;
 import org.karnak.frontend.component.ProjectDropDown;
 import org.karnak.frontend.project.ProjectView;
 import org.karnak.frontend.util.UIS;
@@ -48,8 +51,12 @@ public class LayoutDesidentification extends VerticalLayout {
   private WarningNoProjectsDefined warningNoProjectsDefined;
   private Select<String> extidListBox;
   private TextField issuerOfPatientIDByDefault;
+  private HashMap<String, ExternalIDProvider> externalIDProviderImplMap;
 
-  public LayoutDesidentification() {}
+  public LayoutDesidentification() {
+    this.externalIDProviderImplMap =
+        ExternalIDProviderConfig.getInstance().externalIDProviderImplMap();
+  }
 
   public void init(final Binder<DestinationEntity> binder) {
     this.issuerOfPatientIDByDefault = new TextField();
@@ -104,11 +111,19 @@ public class LayoutDesidentification extends VerticalLayout {
     extidListBox.setLabel("Pseudonym type");
     extidListBox.setWidth("100%");
     extidListBox.getStyle().set("right", "0px");
-    extidListBox.setItems(
-        MAINZELLISTE_PID.getValue(),
-        MAINZELLISTE_EXTID.getValue(),
-        CACHE_EXTID.getValue(),
-        EXTID_IN_TAG.getValue());
+    final List<String> externalIDProviderTypeSentenceList = new ArrayList<>();
+
+    for (ExternalIDProviderType enumType : ExternalIDProviderType.values()) {
+      if (enumType.isByDefault()) {
+        externalIDProviderTypeSentenceList.add(enumType.getDescription());
+      }
+    }
+
+    externalIDProviderImplMap.forEach(
+        (s, externalIDProvider) -> {
+          externalIDProviderTypeSentenceList.add(externalIDProvider.getDescription());
+        });
+    extidListBox.setItems(externalIDProviderTypeSentenceList);
 
     extidPresentInDicomTagView = new ExtidPresentInDicomTagView(destinationBinder);
     div = new Div();
@@ -158,15 +173,11 @@ public class LayoutDesidentification extends VerticalLayout {
     extidListBox.addValueChangeListener(
         event -> {
           if (event.getValue() != null) {
-            if (event.getValue().equals(MAINZELLISTE_PID.getValue())) {
-              extidPresentInDicomTagView.clear();
-              divExtID.remove(extidPresentInDicomTagView);
-            } else if (event.getValue().equals(MAINZELLISTE_EXTID.getValue())
-                || event.getValue().equals(CACHE_EXTID.getValue())) {
-              extidPresentInDicomTagView.clear();
-              divExtID.remove(extidPresentInDicomTagView);
+            if (event.getValue().equals(EXTID_IN_TAG.getDescription())) {
+              div.add(extidPresentInDicomTagView);
             } else {
-              divExtID.add(extidPresentInDicomTagView);
+              extidPresentInDicomTagView.clear();
+              div.remove(extidPresentInDicomTagView);
             }
           }
         });
@@ -194,33 +205,6 @@ public class LayoutDesidentification extends VerticalLayout {
                 project != null || (project == null && !checkboxDesidentification.getValue()),
             "Choose a project")
         .bind(DestinationEntity::getProjectEntity, DestinationEntity::setProjectEntity);
-
-    destinationBinder
-        .forField(extidListBox)
-        .withValidator(type -> type != null, "Choose pseudonym type\n")
-        .bind(
-            destination -> {
-              if (destination.getPseudonymType().equals(MAINZELLISTE_PID)) {
-                return MAINZELLISTE_PID.getValue();
-              } else if (destination.getPseudonymType().equals(MAINZELLISTE_EXTID)) {
-                return MAINZELLISTE_EXTID.getValue();
-              } else if (destination.getPseudonymType().equals(CACHE_EXTID)) {
-                return CACHE_EXTID.getValue();
-              } else {
-                return EXTID_IN_TAG.getValue();
-              }
-            },
-            (destination, s) -> {
-              if (s.equals(MAINZELLISTE_PID.getValue())) {
-                destination.setPseudonymType(MAINZELLISTE_PID);
-              } else if (s.equals(MAINZELLISTE_EXTID.getValue())) {
-                destination.setPseudonymType(MAINZELLISTE_EXTID);
-              } else if (s.equals(CACHE_EXTID.getValue())) {
-                destination.setPseudonymType(CACHE_EXTID);
-              } else {
-                destination.setPseudonymType(EXTID_IN_TAG);
-              }
-            });
   }
 
   public Binder<DestinationEntity> getDestinationBinder() {
@@ -269,5 +253,9 @@ public class LayoutDesidentification extends VerticalLayout {
 
   public TextField getIssuerOfPatientIDByDefault() {
     return issuerOfPatientIDByDefault;
+  }
+
+  public HashMap<String, ExternalIDProvider> getExternalIDProviderImplMap() {
+    return externalIDProviderImplMap;
   }
 }

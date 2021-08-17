@@ -9,11 +9,11 @@
  */
 package org.karnak.backend.cache;
 
-public class CachedPatient extends Patient {
+public class ExternalIDCSVPatient extends Patient {
 
   private Long projectID;
 
-  public CachedPatient(
+  public ExternalIDCSVPatient(
       String pseudonym,
       String patientId,
       String patientFirstName,

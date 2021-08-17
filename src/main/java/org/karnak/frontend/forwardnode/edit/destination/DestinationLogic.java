@@ -13,9 +13,12 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import java.util.HashSet;
 import java.util.Objects;
 import org.karnak.backend.data.entity.DestinationEntity;
+import org.karnak.backend.data.entity.ExternalIDProviderEntity;
 import org.karnak.backend.data.entity.ForwardNodeEntity;
+import org.karnak.backend.enums.ExternalIDProviderType;
 import org.karnak.backend.model.NodeEvent;
 import org.karnak.backend.service.DestinationService;
+import org.karnak.backend.service.ExternalIDProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +31,7 @@ public class DestinationLogic extends ListDataProvider<DestinationEntity> {
 
   // Services
   private final transient DestinationService destinationService;
+  private final transient ExternalIDProviderService externalIDProviderService;
 
   /** Text filter that can be changed separately. */
   private String filterText = "";
@@ -40,9 +44,12 @@ public class DestinationLogic extends ListDataProvider<DestinationEntity> {
    * @param destinationService Destination Service
    */
   @Autowired
-  public DestinationLogic(final DestinationService destinationService) {
+  public DestinationLogic(
+      final DestinationService destinationService,
+      final ExternalIDProviderService externalIDProviderService) {
     super(new HashSet<>());
     this.destinationService = destinationService;
+    this.externalIDProviderService = externalIDProviderService;
   }
 
   @Override
@@ -125,5 +132,10 @@ public class DestinationLogic extends ListDataProvider<DestinationEntity> {
   public void deleteDestination(DestinationEntity destinationEntity) {
     destinationService.delete(destinationEntity);
     refreshAll();
+  }
+
+  public ExternalIDProviderEntity getExteralIDProviderEntity(
+      ExternalIDProviderType externalIDProviderType, String jarName) {
+    return externalIDProviderService.getExternalIDProvider(externalIDProviderType, jarName);
   }
 }

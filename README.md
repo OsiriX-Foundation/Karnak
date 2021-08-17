@@ -34,8 +34,8 @@ Prerequisites:
 - Code formatter: [google-java-format](https://github.com/google/google-java-format)
 
 ##### Karnak
-
-Execute the maven command `mvn clean install -P production` in the root directory of the project.
+1. Execute the maven command `mvn clean install` in the external-provider-interface directory.
+2. Execute the maven command `mvn clean install -P production` in the root directory of the project.
 
 # Run Karnak
 

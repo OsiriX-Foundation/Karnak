@@ -9,9 +9,6 @@
  */
 package org.karnak.frontend.forwardnode.edit;
 
-import static org.karnak.backend.enums.PseudonymType.EXTID_IN_TAG;
-import static org.karnak.backend.enums.PseudonymType.MAINZELLISTE_PID;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -20,16 +17,20 @@ import com.vaadin.flow.data.binder.Binder;
 import java.util.HashSet;
 import java.util.Set;
 import org.dcm4che3.util.TagUtils;
+import org.karnak.ExternalIDProvider;
 import org.karnak.backend.data.entity.DestinationEntity;
 import org.karnak.backend.data.entity.DicomSourceNodeEntity;
+import org.karnak.backend.data.entity.ExternalIDProviderEntity;
 import org.karnak.backend.data.entity.ForwardNodeEntity;
 import org.karnak.backend.data.entity.SOPClassUIDEntity;
 import org.karnak.backend.enums.DestinationType;
+import org.karnak.backend.enums.ExternalIDProviderType;
 import org.karnak.backend.enums.NodeEventType;
 import org.karnak.backend.model.NodeEvent;
 import org.karnak.backend.service.ProjectService;
 import org.karnak.backend.service.SOPClassUIDService;
 import org.karnak.backend.util.DoubleToIntegerConverter;
+import org.karnak.backend.util.ExternalIDProviderUtil;
 import org.karnak.frontend.component.ConfirmDialog;
 import org.karnak.frontend.forwardnode.ForwardNodeLogic;
 import org.karnak.frontend.forwardnode.edit.component.ButtonSaveDeleteCancel;
@@ -62,6 +63,7 @@ public class LayoutEditForwardNode extends VerticalLayout {
   private final ButtonSaveDeleteCancel buttonForwardNodeSaveDeleteCancel;
   private final NewUpdateSourceNode newUpdateSourceNode;
   private ForwardNodeEntity currentForwardNodeEntity;
+  private final ForwardNodeLogic forwardNodeLogic;
 
   /**
    * Autowired constructor
@@ -69,6 +71,7 @@ public class LayoutEditForwardNode extends VerticalLayout {
    * @param forwardNodeLogic
    */
   public LayoutEditForwardNode(final ForwardNodeLogic forwardNodeLogic) {
+    this.forwardNodeLogic = forwardNodeLogic;
     this.projectService = forwardNodeLogic.getProjectService();
     this.sopClassUIDService = forwardNodeLogic.getSopClassUIDService();
     this.currentForwardNodeEntity = null;
@@ -110,6 +113,9 @@ public class LayoutEditForwardNode extends VerticalLayout {
         newUpdateDestination.getFormDICOM().getFilterBySOPClassesForm());
     addBindersFilterBySOPClassesForm(
         newUpdateDestination.getFormSTOW().getFilterBySOPClassesForm());
+
+    addBinderExtidListBox(newUpdateDestination.getFormSTOW().getLayoutDesidentification());
+    addBinderExtidListBox(newUpdateDestination.getFormDICOM().getLayoutDesidentification());
     addBinderExtidInDicomTag(newUpdateDestination.getFormSTOW().getLayoutDesidentification());
     addBinderExtidInDicomTag(newUpdateDestination.getFormDICOM().getLayoutDesidentification());
   }
@@ -466,10 +472,11 @@ public class LayoutEditForwardNode extends VerticalLayout {
                           layoutDesidentification.getLabelDisclaimer(),
                           layoutDesidentification.getProjectDropDown(),
                           layoutDesidentification.getDesidentificationName(),
-                          layoutDesidentification.getIssuerOfPatientIDByDefault());
-                  layoutDesidentification.getExtidListBox().setValue(MAINZELLISTE_PID.getValue());
+                          layoutDesidentification.getIssuerOfPatientIDByDefault(),
+                          layoutDesidentification.getDivExtID(),
+                          layoutDesidentification.getExtidPresentInDicomTagView());
                   layoutDesidentification.getExtidPresentInDicomTagView().clear();
-                  layoutDesidentification.getDiv().remove(layoutDesidentification.getDivExtID());
+                  layoutDesidentification.getExtidListBox().setValue(null);
                 }
               }
             });
@@ -503,6 +510,58 @@ public class LayoutEditForwardNode extends VerticalLayout {
         .bind(DestinationEntity::isFilterBySOPClasses, DestinationEntity::setFilterBySOPClasses);
   }
 
+  public void addBinderExtidListBox(LayoutDesidentification layoutDesidentification) {
+    layoutDesidentification
+        .getDestinationBinder()
+        .forField(layoutDesidentification.getExtidListBox())
+        .withValidator(
+            type ->
+                type != null
+                    || (type == null
+                        && !layoutDesidentification.getCheckboxDesidentification().getValue()),
+            "Choose pseudonym type\n")
+        .bind(
+            destination -> {
+              if (destination.getExternalIDProviderEntity() != null) {
+                final ExternalIDProviderType externalIDProviderType =
+                    destination.getExternalIDProviderEntity().getExternalIDProviderType();
+                if (externalIDProviderType.equals(
+                    ExternalIDProviderType.EXTID_PROVIDER_IMPLEMENTATION)) {
+                  final String jarName = destination.getExternalIDProviderEntity().getJarName();
+                  final ExternalIDProvider externalIDProvider =
+                      layoutDesidentification.getExternalIDProviderImplMap().get(jarName);
+                  return externalIDProvider.getDescription();
+                } else {
+                  return externalIDProviderType.getDescription();
+                }
+              } else {
+                return null;
+              }
+            },
+            (destination, descriptionSelected) -> {
+              final ExternalIDProviderType externalIDProviderTypeSelected =
+                  ExternalIDProviderUtil.getType(descriptionSelected);
+              if (externalIDProviderTypeSelected != null) {
+                final ExternalIDProviderEntity externalIDProviderEntity =
+                    forwardNodeLogic
+                        .getDestinationLogic()
+                        .getExteralIDProviderEntity(externalIDProviderTypeSelected, null);
+                destination.setExternalIDProviderEntity(externalIDProviderEntity);
+              } else {
+                final ExternalIDProviderEntity externalIDProviderEntity =
+                    ExternalIDProviderUtil.getExternalIDProviderEntityWithDescription(
+                        forwardNodeLogic.getDestinationLogic(),
+                        layoutDesidentification,
+                        descriptionSelected);
+                if (externalIDProviderEntity != null) {
+                  destination.setExternalIDProviderEntity(externalIDProviderEntity);
+                } else {
+                  destination.setExternalIDProviderEntity(null);
+                }
+              }
+            });
+  }
+
   public void addBinderExtidInDicomTag(LayoutDesidentification layoutDesidentification) {
     layoutDesidentification
         .getDestinationBinder()
@@ -511,10 +570,11 @@ public class LayoutEditForwardNode extends VerticalLayout {
         .withValidator(
             tag -> {
               if (!layoutDesidentification.getCheckboxDesidentification().getValue()
-                  || !layoutDesidentification
-                      .getExtidListBox()
-                      .getValue()
-                      .equals(EXTID_IN_TAG.getValue())) {
+                  || (layoutDesidentification.getExtidListBox().getValue() != null
+                      && !layoutDesidentification
+                          .getExtidListBox()
+                          .getValue()
+                          .equals(ExternalIDProviderType.EXTID_IN_TAG.getDescription()))) {
                 return true;
               }
               final String cleanTag = tag.replaceAll("[(),]", "").toUpperCase();
@@ -536,10 +596,11 @@ public class LayoutEditForwardNode extends VerticalLayout {
         .withValidator(
             delimiter -> {
               if (!layoutDesidentification.getCheckboxDesidentification().getValue()
-                  || !layoutDesidentification
-                      .getExtidListBox()
-                      .getValue()
-                      .equals(EXTID_IN_TAG.getValue())) {
+                  || (layoutDesidentification.getExtidListBox().getValue() != null
+                      && !layoutDesidentification
+                          .getExtidListBox()
+                          .getValue()
+                          .equals(ExternalIDProviderType.EXTID_IN_TAG.getDescription()))) {
                 return true;
               }
               if (layoutDesidentification.getExtidPresentInDicomTagView().getPosition().getValue()
@@ -563,10 +624,11 @@ public class LayoutEditForwardNode extends VerticalLayout {
         .withValidator(
             position -> {
               if (!layoutDesidentification.getCheckboxDesidentification().getValue()
-                  || !layoutDesidentification
-                      .getExtidListBox()
-                      .getValue()
-                      .equals(EXTID_IN_TAG.getValue())) {
+                  || (layoutDesidentification.getExtidListBox().getValue() != null
+                      && !layoutDesidentification
+                          .getExtidListBox()
+                          .getValue()
+                          .equals(ExternalIDProviderType.EXTID_IN_TAG.getDescription()))) {
                 return true;
               }
               if (layoutDesidentification.getExtidPresentInDicomTagView().getDelimiter().getValue()

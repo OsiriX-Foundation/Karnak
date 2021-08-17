@@ -18,7 +18,7 @@ import org.karnak.backend.config.MainzellisteConfig;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-class PseudonymApiTest {
+class MainzellisteApiTest {
 
   MockedStatic<MainzellisteConfig> mainzellisteConfigMock;
 
@@ -43,14 +43,14 @@ class PseudonymApiTest {
   void when_add_ext_id_server_invalid_should_throw_exception() {
 
     // Init data
-    PseudonymApi pseudonymApi = new PseudonymApi();
+    MainzellisteApi pseudonymApi = new MainzellisteApi();
     Fields fields = new Fields("patientId");
 
     Assertions.assertThrows(
         IllegalStateException.class,
         () -> {
           // Call method
-          pseudonymApi.addExtID(fields, "externalPseudonym");
+          pseudonymApi.addExternalID(fields, "externalPseudonym");
         });
   }
 
@@ -58,21 +58,21 @@ class PseudonymApiTest {
   void when_get_ext_id_server_invalid_should_throw_exception() {
 
     // Init data
-    PseudonymApi pseudonymApi = new PseudonymApi();
+    MainzellisteApi pseudonymApi = new MainzellisteApi();
     Fields fields = new Fields("patientId");
 
     Assertions.assertThrows(
         IllegalStateException.class,
         () -> {
           // Call method
-          pseudonymApi.getExistingExtID(fields);
+          pseudonymApi.getExistingExternalID(fields);
         });
   }
 
   @Test
   void when_generate_pid_server_invalid_should_throw_exception() {
     // Init data
-    PseudonymApi pseudonymApi = new PseudonymApi();
+    MainzellisteApi pseudonymApi = new MainzellisteApi();
     Fields fields = new Fields("patientId");
 
     Assertions.assertThrows(

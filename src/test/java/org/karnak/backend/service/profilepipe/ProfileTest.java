@@ -19,12 +19,13 @@ import org.dcm4che3.data.VR;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.karnak.backend.data.entity.DestinationEntity;
+import org.karnak.backend.data.entity.ExternalIDProviderEntity;
 import org.karnak.backend.data.entity.MaskEntity;
 import org.karnak.backend.data.entity.ProfileElementEntity;
 import org.karnak.backend.data.entity.ProfileEntity;
 import org.karnak.backend.data.entity.ProjectEntity;
 import org.karnak.backend.enums.DestinationType;
-import org.karnak.backend.enums.PseudonymType;
+import org.karnak.backend.enums.ExternalIDProviderType;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.weasis.dicom.param.AttributeEditorContext;
 
@@ -36,6 +37,8 @@ class ProfileTest {
 
     // Init data
     Attributes attributes = new Attributes();
+    ExternalIDProviderEntity externalIDProviderEntity =
+        new ExternalIDProviderEntity(true, ExternalIDProviderType.EXTID_IN_TAG, null);
     DestinationEntity destinationEntity = new DestinationEntity();
     destinationEntity.setDestinationType(DestinationType.dicom);
     ProjectEntity projectEntity = new ProjectEntity();
@@ -45,7 +48,7 @@ class ProfileTest {
     tabByte[0] = 1;
     projectEntity.setSecret(tabByte);
     destinationEntity.setProjectEntity(projectEntity);
-    destinationEntity.setPseudonymType(PseudonymType.EXTID_IN_TAG);
+    destinationEntity.setExternalIDProviderEntity(externalIDProviderEntity);
     destinationEntity.setTag("0008,0080");
     destinationEntity.setSavePseudonym(false);
     ProfileEntity profileEntity = new ProfileEntity();

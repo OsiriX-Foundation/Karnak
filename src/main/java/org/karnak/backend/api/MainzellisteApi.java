@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
 /** API model */
-public class PseudonymApi {
+public class MainzellisteApi {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PseudonymApi.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MainzellisteApi.class);
 
   private static final String SERVER_URL = MainzellisteConfig.getInstance().getServerurl();
   private static final String API_KEY = MainzellisteConfig.getInstance().getApikey();
@@ -54,24 +54,24 @@ public class PseudonymApi {
 
   private String sessionId;
 
-  public String addExtID(Fields patientFields, String externalPseudonym) {
+  public String addExternalID(Fields patientFields, String externalID) {
     this.sessionId = rqGetSessionId();
     String[] extid = {"pid", "extid"};
-    Data data = new Data(extid, patientFields, new Ids(externalPseudonym));
+    Data data = new Data(extid, patientFields, new Ids(externalID));
     try {
-      return getPseudonym(data);
+      return getRequest(data);
     } catch (Exception e) {
       throw new IllegalStateException(
-          String.format("Cannot add a extid %s in Mainzellise %s", externalPseudonym, e));
+          String.format("Cannot add a extid %s in Mainzellise %s", externalID, e));
     }
   }
 
-  public String getExistingExtID(Fields patientFields) {
+  public String getExistingExternalID(Fields patientFields) {
     this.sessionId = rqGetSessionId();
     String[] extid = {"pid", "extid"};
     Data data = new Data(extid, patientFields, null);
     try {
-      return getPseudonym(data);
+      return getRequest(data);
     } catch (Exception e) {
       throw new IllegalStateException("Cannot get an existing extid in Mainzelliste API", e);
     }
@@ -82,7 +82,7 @@ public class PseudonymApi {
     String[] extid = {"pid"};
     Data data = new Data(extid, patientFields, null);
     try {
-      return getPseudonym(data);
+      return getRequest(data);
     } catch (Exception e) {
       throw new IllegalStateException("Cannot generate pid in Mainzelliste", e);
     }
@@ -94,7 +94,7 @@ public class PseudonymApi {
     return getPatients(searchIds);
   }
 
-  private String getPseudonym(Data data) throws IOException {
+  private String getRequest(Data data) throws IOException {
     String tokenIDAddPatient;
     try {
       tokenIDAddPatient = rqCreateTokenAddPatient(data);

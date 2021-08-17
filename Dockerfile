@@ -10,6 +10,8 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 COPY frontend frontend
+COPY externalid-provider-interface externalid-provider-interface
+RUN mvn -B -f externalid-provider-interface/pom.xml install
 RUN mvn -B package -P production
 WORKDIR /app/bin
 RUN cp ../target/karnak*.jar application.jar
@@ -23,6 +25,7 @@ COPY --from=builder /app/bin/spring-boot-loader/ ./
 COPY --from=builder /app/bin/snapshot-dependencies/ ./
 COPY --from=builder /app/bin/application/ ./
 COPY tools/docker-entrypoint.sh .
+RUN mkdir externalid-providers
 
 EXPOSE 8080
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

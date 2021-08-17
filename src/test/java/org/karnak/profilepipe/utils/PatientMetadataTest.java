@@ -22,7 +22,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.karnak.backend.cache.CachedPatient;
+import org.karnak.backend.cache.ExternalIDCSVPatient;
 import org.karnak.backend.cache.MainzellistePatient;
 import org.karnak.backend.cache.PseudonymPatient;
 import org.karnak.backend.model.profilepipe.PatientMetadata;
@@ -111,17 +111,17 @@ class PatientMetadataTest {
 
   private static Stream<Arguments> providerCompareCachedPatient() {
     return Stream.of(
-        Arguments.of(patientMetadata, new CachedPatient("TEST", "", "", "", "", null)),
+        Arguments.of(patientMetadata, new ExternalIDCSVPatient("TEST", "", "", "", "", null)),
         Arguments.of(patientMetadata, new MainzellistePatient("TEST", "", "", "", null, "O", "")),
         Arguments.of(
             patientMetadataDicomEmptyWithIssuer,
-            new CachedPatient("TEST", "", "", "", "PDA", null)),
+            new ExternalIDCSVPatient("TEST", "", "", "", "PDA", null)),
         Arguments.of(
             patientMetadataDicomEmptyWithIssuer,
             new MainzellistePatient("TEST", "", "", "", null, "O", "PDA")),
         Arguments.of(
             patientMetadataWithNotValidPatientSex,
-            new CachedPatient("TEST", "EREN", "Name", "Patient", "PDA", null)),
+            new ExternalIDCSVPatient("TEST", "EREN", "Name", "Patient", "PDA", null)),
         Arguments.of(
             patientMetadataWithNotValidPatientSex,
             new MainzellistePatient(
@@ -130,15 +130,16 @@ class PatientMetadataTest {
 
   private static Stream<Arguments> providerCompareCachedPatientFalse() {
     return Stream.of(
-        Arguments.of(patientMetadata, new CachedPatient("TEST", "1", "", "", "", null)),
-        Arguments.of(patientMetadata, new CachedPatient("TEST", "", "", "", "1", null)),
+        Arguments.of(patientMetadata, new ExternalIDCSVPatient("TEST", "1", "", "", "", null)),
+        Arguments.of(patientMetadata, new ExternalIDCSVPatient("TEST", "", "", "", "1", null)),
         Arguments.of(patientMetadata, new MainzellistePatient("TEST", "1", "", "", null, "O", "")),
         Arguments.of(patientMetadata, new MainzellistePatient("TEST", "", "", "", null, "O", "1")),
         Arguments.of(
             patientMetadataDicomEmptyWithIssuer,
-            new CachedPatient("TEST", "1", "", "", "PDA", null)),
+            new ExternalIDCSVPatient("TEST", "1", "", "", "PDA", null)),
         Arguments.of(
-            patientMetadataDicomEmptyWithIssuer, new CachedPatient("TEST", "", "", "", "", null)),
+            patientMetadataDicomEmptyWithIssuer,
+            new ExternalIDCSVPatient("TEST", "", "", "", "", null)),
         Arguments.of(
             patientMetadataDicomEmptyWithIssuer,
             new MainzellistePatient("TEST", "1", "", "", null, "O", "PDA")),
@@ -147,13 +148,13 @@ class PatientMetadataTest {
             new MainzellistePatient("TEST", "", "", "", null, "O", "")),
         Arguments.of(
             patientMetadataWithNotValidPatientSex,
-            new CachedPatient("TEST", "", "Name", "Patient", "PDA", null)),
+            new ExternalIDCSVPatient("TEST", "", "Name", "Patient", "PDA", null)),
         Arguments.of(
             patientMetadataWithNotValidPatientSex,
-            new CachedPatient("TEST", "", "^Name", "", "PDA", null)),
+            new ExternalIDCSVPatient("TEST", "", "^Name", "", "PDA", null)),
         Arguments.of(
             patientMetadataWithNotValidPatientSex,
-            new CachedPatient("TEST", "EREN", "Patient^Name", "", "", null)),
+            new ExternalIDCSVPatient("TEST", "EREN", "Patient^Name", "", "", null)),
         Arguments.of(
             patientMetadataWithNotValidPatientSex,
             new MainzellistePatient(

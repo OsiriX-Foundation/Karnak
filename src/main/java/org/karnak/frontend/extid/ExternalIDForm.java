@@ -19,7 +19,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import org.apache.commons.lang3.StringUtils;
-import org.karnak.backend.cache.CachedPatient;
+import org.karnak.backend.cache.ExternalIDCSVPatient;
 import org.karnak.backend.data.entity.ProjectEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class ExternalIDForm extends Div {
   protected static final Logger LOGGER = LoggerFactory.getLogger(ExternalIDForm.class);
   private static final String ERROR_MESSAGE_PATIENT = "Length must be between 1 and 50.";
 
-  private final Binder<CachedPatient> binder;
+  private final Binder<ExternalIDCSVPatient> binder;
   private transient ProjectEntity projectEntity;
   private TextField externalIdField;
   private TextField patientIdField;
@@ -43,7 +43,7 @@ public class ExternalIDForm extends Div {
   public ExternalIDForm() {
     setSizeFull();
 
-    binder = new BeanValidationBinder<>(CachedPatient.class);
+    binder = new BeanValidationBinder<>(ExternalIDCSVPatient.class);
 
     setElements();
     setBinder();
@@ -138,9 +138,9 @@ public class ExternalIDForm extends Div {
         .bind("issuerOfPatientId");
   }
 
-  public CachedPatient getNewPatient() {
-    CachedPatient newPatient =
-        new CachedPatient(
+  public ExternalIDCSVPatient getNewPatient() {
+    ExternalIDCSVPatient newPatient =
+        new ExternalIDCSVPatient(
             externalIdField.getValue(),
             patientIdField.getValue(),
             patientFirstNameField.getValue(),

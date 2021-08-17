@@ -36,6 +36,7 @@ import org.karnak.backend.data.entity.ProfileElementEntity;
 import org.karnak.backend.data.entity.ProfileEntity;
 import org.karnak.backend.data.entity.ProjectEntity;
 import org.karnak.backend.dicom.Defacer;
+import org.karnak.backend.enums.ExternalIDProviderType;
 import org.karnak.backend.enums.ProfileItemType;
 import org.karnak.backend.model.action.ActionItem;
 import org.karnak.backend.model.action.Remove;
@@ -296,10 +297,14 @@ public class Profile {
       DestinationEntity destinationEntity,
       ProfileEntity profileEntity,
       AttributeEditorContext context) {
+    Attributes dcmCopy = new Attributes(dcm);
+    dcmCopy.setReadOnly();
     final String SOPInstanceUID = dcm.getString(Tag.SOPInstanceUID);
     final String SeriesInstanceUID = dcm.getString(Tag.SeriesInstanceUID);
     final String IssuerOfPatientID = dcm.getString(Tag.IssuerOfPatientID);
     final String PatientID = dcm.getString(Tag.PatientID);
+    final ExternalIDProviderType externalIDProviderType =
+        destinationEntity.getExternalIDProviderEntity().getExternalIDProviderType();
     final HMAC hmac = generateHMAC(destinationEntity, PatientID);
 
     MDC.put("SOPInstanceUID", SOPInstanceUID);
@@ -313,8 +318,6 @@ public class Profile {
         profiles.stream().map(ProfileItem::getCodeName).collect(Collectors.joining("-"));
     BigInteger patientValue = generatePatientID(pseudonymValue, hmac);
     String newPatientID = patientValue.toString(16).toUpperCase();
-
-    Attributes dcmCopy = new Attributes(dcm);
 
     // Apply clean pixel data
     applyCleanPixelData(dcmCopy, context, profileEntity);

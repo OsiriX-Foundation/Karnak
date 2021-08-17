@@ -22,7 +22,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import java.time.format.DateTimeFormatter;
 import org.apache.commons.lang3.StringUtils;
-import org.karnak.backend.api.PseudonymApi;
+import org.karnak.backend.api.MainzellisteApi;
 import org.karnak.backend.api.rqbody.Fields;
 import org.karnak.backend.cache.MainzellistePatient;
 import org.karnak.frontend.component.ConfirmDialog;
@@ -132,8 +132,7 @@ public class MainzellisteAddPatient extends VerticalLayout {
 
     binder
         .forField(patientFirstNameField)
-        .withValidator(StringUtils::isNotBlank, "Patient first name is empty")
-        .withValidator(new StringLengthValidator(ERROR_MESSAGE_PATIENT, 1, 50))
+        .withValidator(new StringLengthValidator("Length must be between 0 and 50.", 0, 50))
         .bind("patientFirstName");
 
     binder
@@ -182,9 +181,9 @@ public class MainzellisteAddPatient extends VerticalLayout {
               issuerOfPatientIdField.getValue());
 
       try {
-        final PseudonymApi pseudonymApi = new PseudonymApi();
+        final MainzellisteApi mainzellisteApi = new MainzellisteApi();
         final String pseudonym =
-            pseudonymApi.addExtID(newPatientFields, externalIdField.getValue());
+            mainzellisteApi.addExternalID(newPatientFields, externalIdField.getValue());
         if (pseudonym != null) {
           final String strPatient =
               "ExternalID: "

@@ -16,6 +16,7 @@ import com.vaadin.flow.data.binder.Binder;
 import org.karnak.backend.data.entity.DestinationEntity;
 import org.karnak.backend.enums.DestinationType;
 import org.karnak.frontend.forwardnode.edit.component.ButtonSaveDeleteCancel;
+import org.karnak.frontend.forwardnode.edit.destination.DestinationLogic;
 
 @SuppressWarnings("serial")
 public class NewUpdateDestination extends VerticalLayout {
@@ -27,17 +28,20 @@ public class NewUpdateDestination extends VerticalLayout {
   private final ButtonSaveDeleteCancel buttonDestinationDICOMSaveDeleteCancel;
   private final ButtonSaveDeleteCancel buttonDestinationSTOWSaveDeleteCancel;
   private DestinationEntity currentDestinationEntity;
+  private DestinationLogic destinationLogic;
 
   public NewUpdateDestination() {
     setSizeFull();
 
     this.formDICOM = new FormDICOM();
     this.formSTOW = new FormSTOW();
+
     this.binderFormDICOM = new BeanValidationBinder<>(DestinationEntity.class);
     this.binderFormSTOW = new BeanValidationBinder<>(DestinationEntity.class);
     this.buttonDestinationDICOMSaveDeleteCancel = new ButtonSaveDeleteCancel();
     this.buttonDestinationSTOWSaveDeleteCancel = new ButtonSaveDeleteCancel();
     this.currentDestinationEntity = null;
+
     this.formDICOM.init(binderFormDICOM, buttonDestinationDICOMSaveDeleteCancel);
     this.formSTOW.init(binderFormSTOW, buttonDestinationSTOWSaveDeleteCancel);
   }

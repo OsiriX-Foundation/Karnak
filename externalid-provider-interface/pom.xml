@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.karnak</groupId>
+  <artifactId>externalid-provider-interface</artifactId>
+  <version>1.0</version>
+
+  <properties>
+    <maven.compiler.source>14</maven.compiler.source>
+    <maven.compiler.target>14</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <weasis-dicom-tools.version>5.23.2.1-IMG-RELEASE</weasis-dicom-tools.version>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>mvn-repo-master</id>
+      <url>https://raw.github.com/nroduit/mvn-repo/master/</url>
+    </repository>
+
+    <repository>
+      <id>www.dcm4che.org</id>
+      <name>dcm4che Repository</name>
+      <url>https://www.dcm4che.org/maven2</url>
+      <!-- <url>http://www.dcm4che.org/maven2</url> (which will redirected to
+        https://www.dcm4che.org/maven2). -->
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <artifactId>weasis-dicom-tools</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-log4j12</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+      <groupId>org.weasis</groupId>
+      <version>${weasis-dicom-tools.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>

@@ -15,9 +15,10 @@ import org.dcm4che3.data.VR;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.karnak.backend.data.entity.DestinationEntity;
+import org.karnak.backend.data.entity.ExternalIDProviderEntity;
 import org.karnak.backend.data.entity.ProfileEntity;
 import org.karnak.backend.data.entity.ProjectEntity;
-import org.karnak.backend.enums.PseudonymType;
+import org.karnak.backend.enums.ExternalIDProviderType;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.weasis.dicom.param.AttributeEditorContext;
 import org.weasis.dicom.param.DicomNode;
@@ -29,6 +30,8 @@ class DeIdentifyEditorTest {
   void should_apply_to_dicom_object() {
     // Init data
     Attributes attributes = new Attributes();
+    ExternalIDProviderEntity externalIDProviderEntity =
+        new ExternalIDProviderEntity(true, ExternalIDProviderType.EXTID_IN_TAG, null);
     DicomNode source = new DicomNode("source");
     DicomNode destination = new DicomNode("destination");
     AttributeEditorContext attributeEditorContext =
@@ -38,7 +41,7 @@ class DeIdentifyEditorTest {
     ProjectEntity projectEntity = new ProjectEntity();
     projectEntity.setProfileEntity(profileEntity);
     destinationEntity.setProjectEntity(projectEntity);
-    destinationEntity.setPseudonymType(PseudonymType.EXTID_IN_TAG);
+    destinationEntity.setExternalIDProviderEntity(externalIDProviderEntity);
     destinationEntity.setTag("0008,0080");
     destinationEntity.setSavePseudonym(false);
     byte[] tabByte = new byte[16];

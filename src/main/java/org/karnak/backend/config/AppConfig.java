@@ -12,7 +12,8 @@ package org.karnak.backend.config;
 import java.io.InputStream;
 import java.net.URL;
 import javax.annotation.PostConstruct;
-import org.karnak.backend.cache.ExternalIDCache;
+import org.karnak.backend.cache.ExternalIDCSVCache;
+import org.karnak.backend.cache.ExternalIDProviderCache;
 import org.karnak.backend.cache.MainzellisteCache;
 import org.karnak.backend.cache.PatientClient;
 import org.karnak.backend.data.repo.ProfileRepo;
@@ -100,9 +101,14 @@ public class AppConfig {
     return new ConfidentialityProfiles();
   }
 
+  @Bean("ExternalIDProviderCache")
+  public PatientClient getExternalIDProviderCache() {
+    return new ExternalIDProviderCache();
+  }
+
   @Bean("ExternalIDPatient")
   public PatientClient getExternalIDCache() {
-    return new ExternalIDCache();
+    return new ExternalIDCSVCache();
   }
 
   @Bean("MainzellisteCache")

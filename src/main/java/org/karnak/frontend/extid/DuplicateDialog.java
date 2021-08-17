@@ -15,17 +15,17 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import java.util.Collection;
 import java.util.List;
-import org.karnak.backend.cache.CachedPatient;
+import org.karnak.backend.cache.ExternalIDCSVPatient;
 import org.karnak.backend.cache.PseudonymPatient;
 
 public class DuplicateDialog extends Dialog {
-  private Collection<CachedPatient> duplicateList;
-  private Grid<CachedPatient> grid;
+  private Collection<ExternalIDCSVPatient> duplicateList;
+  private Grid<ExternalIDCSVPatient> grid;
 
   public DuplicateDialog(
       String title, String text, Collection<PseudonymPatient> duplicateList, String buttonText) {
     removeAll();
-    this.duplicateList = (List<CachedPatient>) (List<?>) duplicateList;
+    this.duplicateList = (List<ExternalIDCSVPatient>) (List<?>) duplicateList;
 
     Div divTitle = new Div();
     divTitle.setText(title);
@@ -52,15 +52,17 @@ public class DuplicateDialog extends Dialog {
 
   public void setGridElement() {
     grid = new Grid<>();
-    grid.addColumn(CachedPatient::getPseudonym).setHeader("External pseudonym").setSortable(true);
-    grid.addColumn(CachedPatient::getPatientId).setHeader("Patient ID").setSortable(true);
-    grid.addColumn(CachedPatient::getPatientFirstName)
+    grid.addColumn(ExternalIDCSVPatient::getPseudonym)
+        .setHeader("External pseudonym")
+        .setSortable(true);
+    grid.addColumn(ExternalIDCSVPatient::getPatientId).setHeader("Patient ID").setSortable(true);
+    grid.addColumn(ExternalIDCSVPatient::getPatientFirstName)
         .setHeader("Patient first name")
         .setSortable(true);
-    grid.addColumn(CachedPatient::getPatientLastName)
+    grid.addColumn(ExternalIDCSVPatient::getPatientLastName)
         .setHeader("Patient last name")
         .setSortable(true);
-    grid.addColumn(CachedPatient::getIssuerOfPatientId)
+    grid.addColumn(ExternalIDCSVPatient::getIssuerOfPatientId)
         .setHeader("Issuer of patient ID")
         .setSortable(true);
     grid.setItems(duplicateList);

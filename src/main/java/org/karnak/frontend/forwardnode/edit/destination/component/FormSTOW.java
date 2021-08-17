@@ -18,6 +18,7 @@ import com.vaadin.flow.data.binder.Binder;
 import org.apache.commons.lang3.StringUtils;
 import org.karnak.backend.data.entity.DestinationEntity;
 import org.karnak.frontend.forwardnode.edit.component.ButtonSaveDeleteCancel;
+import org.karnak.frontend.forwardnode.edit.destination.DestinationLogic;
 import org.karnak.frontend.kheops.SwitchingAlbumsView;
 import org.karnak.frontend.util.UIS;
 
@@ -37,6 +38,7 @@ public class FormSTOW extends VerticalLayout {
   private final NotificationComponent notificationComponent;
   private final TransferSyntaxComponent transferSyntaxComponent;
   private final TranscodeOnlyUncompressedComponent transcodeOnlyUncompressedComponent;
+  private DestinationLogic destinationLogic;
 
   public FormSTOW() {
     this.layoutDesidentification = new LayoutDesidentification();
@@ -134,5 +136,9 @@ public class FormSTOW extends VerticalLayout {
 
   public FilterBySOPClassesForm getFilterBySOPClassesForm() {
     return filterBySOPClassesForm;
+  }
+
+  public void setDestinationLogic(DestinationLogic destinationLogic) {
+    this.destinationLogic = destinationLogic;
   }
 }

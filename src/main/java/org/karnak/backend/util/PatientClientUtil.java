@@ -27,10 +27,9 @@ public class PatientClientUtil {
     return null;
   }
 
-  public static String getPseudonym(
-      PatientMetadata patientMetadata, PatientClient cache, Long projectID) {
+  public static String getPseudonym(PatientMetadata patientMetadata, PatientClient cache, Long id) {
     if (cache != null) {
-      final String key = generateKey(patientMetadata, projectID);
+      final String key = generateKey(patientMetadata, id);
       return getCachedKey(key, patientMetadata, cache);
     }
     return null;
@@ -61,13 +60,13 @@ public class PatientClientUtil {
     return generateKey(patientID, issuerOfPatientID);
   }
 
-  public static String generateKey(PatientMetadata patientMetadata, Long projectID) {
+  public static String generateKey(PatientMetadata patientMetadata, Long id) {
     final String key = generateKey(patientMetadata);
-    return key.concat(projectID == null ? "" : projectID.toString());
+    return key.concat(id == null ? "" : id.toString());
   }
 
-  public static String generateKey(PseudonymPatient pseudonymPatient, Long projectID) {
+  public static String generateKey(PseudonymPatient pseudonymPatient, Long id) {
     final String key = generateKey(pseudonymPatient);
-    return key.concat(projectID == null ? "" : projectID.toString());
+    return key.concat(id == null ? "" : id.toString());
   }
 }

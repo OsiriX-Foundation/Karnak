@@ -11,8 +11,8 @@ package org.karnak.frontend.extid;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.karnak.backend.cache.CachedPatient;
-import org.karnak.backend.cache.ExternalIDCache;
+import org.karnak.backend.cache.ExternalIDCSVCache;
+import org.karnak.backend.cache.ExternalIDCSVPatient;
 import org.karnak.backend.cache.PatientClient;
 import org.karnak.backend.data.entity.ProjectEntity;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,9 +37,9 @@ class ExternalIDGridTest {
     ExternalIDGrid externalIDGrid = new ExternalIDGrid();
 
     // Set cache
-    PatientClient externalIDCache = new ExternalIDCache();
-    CachedPatient patient =
-        new CachedPatient(
+    PatientClient externalIDCache = new ExternalIDCSVCache();
+    ExternalIDCSVPatient patient =
+        new ExternalIDCSVPatient(
             "pseudonym",
             "patientId",
             "patientFirstName",
@@ -72,8 +72,8 @@ class ExternalIDGridTest {
     ExternalIDGrid externalIDGrid = new ExternalIDGrid();
 
     // Add patient
-    CachedPatient patient =
-        new CachedPatient(
+    ExternalIDCSVPatient patient =
+        new ExternalIDCSVPatient(
             "pseudonym",
             "patientId",
             "patientFirstName",
